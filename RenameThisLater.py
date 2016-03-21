@@ -112,6 +112,11 @@ PROGRAM_NAME = 'Items for Hire'
 AUTHOR = 'Caleb Macdonald Black'
 MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
 LIST_ALL_ITEMS_MESSAGE = 'All items on file (* indicates item is currently out):'
+ALL_ITEMS_ON_HIRE_MESSAGE = "All items are currently on hire"
+ENTER_NUMBER_TO_HIRE_MESSAGE = "Enter the number of the item to hire\n"
+INVALID_INPUT_ERROR_MESSAGE = "Invalid input; enter a number"
+ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE = "That item is not available for hire"
+
 
 def main():
     items_file = open('items.csv', 'r')
@@ -124,22 +129,22 @@ def main():
         if menu_choice == 'L':
             print(LIST_ALL_ITEMS_MESSAGE)
 
-            line_count = 0
-            for item in items_file:
+            items_file.seek(0)
+            for i, item in enumerate(items_file):
+
                 item_details = item.split(',')
                 # ToDo This isnt how this is done. fix this
-                formatted_items_details = '{:<46} = $ {}'.format(str(line_count) + ' - ' + item_details[0] + ' ' + item_details[1], item_details[2])
+                formatted_items_details = '{:<46} = $ {}'.format(
+                    str(i) + ' - ' + item_details[0] + ' ' + item_details[1], item_details[2])
                 if item_details[3] == 'in\n':
                     print(formatted_items_details, '*')
                 else:
                     print(formatted_items_details)
-                line_count+=1
-        elif menu_choice == 'A':
+        elif menu_choice == 'H':
+            hire_item(items_file)
+        elif menu_choice == 'R':
             x = 1
-            # hire_item(items_file)
-        elif menu_choice == 'A':
-            x = 1
-            #item_list = return of display_and_get_item_list(choice, items_file)
+            # item_list = return of display_and_get_item_list(choice, items_file)
             # if item_list contains values
             #     return_item(items_file, choice)
             # else
@@ -154,4 +159,39 @@ def main():
         menu_choice = input(MENU).upper()
     items_file.close()
     # print amount of items saved to items_file and a fairwell message
+
+
+def hire_item(items_file):
+    has_item_been_listed = False
+    items_file.seek(0)
+    for i, item in enumerate(items_file):
+        (name, description, price, location) = item.split(',')
+        if location == 'in\n':
+            formatted_items_details = '{:<46} = $ {}'.format(
+                str(i) + ' - ' + name + ' ' + description, price)
+            print(formatted_items_details)
+            has_item_been_listed = True
+
+    if has_item_been_listed == False:
+        print(ALL_ITEMS_ON_HIRE_MESSAGE)
+    else:
+        index_choice_is_a_number = False
+        while index_choice_is_a_number == False:
+            try:
+                index_choice = input(ENTER_NUMBER_TO_HIRE_MESSAGE)
+                index_choice = int(index_choice)
+                index_choice_is_a_number = True
+            except ValueError:
+                print(INVALID_INPUT_ERROR_MESSAGE)
+
+        items_file.seek(0)
+        (indexed_name, indexed_description, indexed_price, indexed_location) = items_file.readlines()[index_choice].split(',')
+
+        if indexed_location == 'in\n':
+            print('{} hired  for ${}'.format(indexed_name, indexed_price))
+            # set the item selected to "out" in items_file
+        else:
+            print(ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE)
+
+
 main()
