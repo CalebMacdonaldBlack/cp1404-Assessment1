@@ -116,6 +116,7 @@ ALL_ITEMS_ON_HIRE_MESSAGE = "All items are currently on hire"
 ENTER_NUMBER_TO_HIRE_MESSAGE = "Enter the number of the item to hire\n"
 INVALID_INPUT_ERROR_MESSAGE = "Invalid input; enter a number"
 ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE = "That item is not available for hire"
+INVALID_MENU_CHOICE_ERROR_MESSAGE = "Invalid menu choice"
 
 
 def main():
@@ -153,8 +154,7 @@ def main():
             x = 1
             # add_new_item()
         else:
-            x = 1
-            # display invalid choice message
+            print(INVALID_MENU_CHOICE_ERROR_MESSAGE)
 
         menu_choice = input(MENU).upper()
     items_file.close()
