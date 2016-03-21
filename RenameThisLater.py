@@ -11,7 +11,7 @@ function main()
 
         if choice is l
             print "All items on file (* indicates item is currently out):"
-            for item in item_file
+            for item in items_file
                 print item removing commas, add selection index, format neatly and adding astrix if item is out
         else if choice is h
             hire_item(items_file)
@@ -107,3 +107,51 @@ function return_item(items_file)
         else
             print "That item has already been returned"
 """
+
+PROGRAM_NAME = 'Items for Hire'
+AUTHOR = 'Caleb Macdonald Black'
+MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
+LIST_ALL_ITEMS_MESSAGE = 'All items on file (* indicates item is currently out):'
+
+def main():
+    items_file = open('items.csv', 'r')
+
+    print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
+
+    menu_choice = input(MENU).upper()
+    while menu_choice != 'Q':
+
+        if menu_choice == 'L':
+            print(LIST_ALL_ITEMS_MESSAGE)
+
+            line_count = 0
+            for item in items_file:
+                item_details = item.split(',')
+                # ToDo This isnt how this is done. fix this
+                formatted_items_details = '{:<46} = $ {}'.format(str(line_count) + ' - ' + item_details[0] + ' ' + item_details[1], item_details[2])
+                if item_details[3] == 'in\n':
+                    print(formatted_items_details, '*')
+                else:
+                    print(formatted_items_details)
+                line_count+=1
+        elif menu_choice == 'A':
+            x = 1
+            # hire_item(items_file)
+        elif menu_choice == 'A':
+            x = 1
+            #item_list = return of display_and_get_item_list(choice, items_file)
+            # if item_list contains values
+            #     return_item(items_file, choice)
+            # else
+            #     print "No items are currently on hire"
+        elif menu_choice == 'L':
+            x = 1
+            # add_new_item()
+        else:
+            x = 1
+            # display invalid choice message
+
+        menu_choice = input(MENU).upper()
+    items_file.close()
+    # print amount of items saved to items_file and a fairwell message
+main()
