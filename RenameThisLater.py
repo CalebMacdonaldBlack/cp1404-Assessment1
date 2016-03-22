@@ -117,10 +117,12 @@ ENTER_NUMBER_TO_HIRE_MESSAGE = "Enter the number of the item to hire\n"
 INVALID_INPUT_ERROR_MESSAGE = "Invalid input; enter a number"
 ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE = "That item is not available for hire"
 INVALID_MENU_CHOICE_ERROR_MESSAGE = "Invalid menu choice"
+ITEM_ALREAD_RETURNED_MESSAGE = "That item has already been returned"
 
 
 def main():
     items_file = open('items.csv', 'r')
+    items_list = items_file.readlines()
 
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
 
@@ -130,26 +132,20 @@ def main():
         if menu_choice == 'L':
             print(LIST_ALL_ITEMS_MESSAGE)
 
-            items_file.seek(0)
-            for i, item in enumerate(items_file):
+            for i, item in enumerate(items_list):
 
                 item_details = item.split(',')
                 # ToDo This isnt how this is done. fix this
                 formatted_items_details = '{:<46} = $ {}'.format(
                     str(i) + ' - ' + item_details[0] + ' ' + item_details[1], item_details[2])
-                if item_details[3] == 'in\n':
+                if item_details[3] == 'out\n':
                     print(formatted_items_details, '*')
                 else:
                     print(formatted_items_details)
         elif menu_choice == 'H':
-            hire_item(items_file)
+            move_item(items_list, 'out\n')
         elif menu_choice == 'R':
-            x = 1
-            # item_list = return of display_and_get_item_list(choice, items_file)
-            # if item_list contains values
-            #     return_item(items_file, choice)
-            # else
-            #     print "No items are currently on hire"
+            move_item(items_list, 'in\n')
         elif menu_choice == 'L':
             x = 1
             # add_new_item()
@@ -161,22 +157,21 @@ def main():
     # print amount of items saved to items_file and a fairwell message
 
 
-def hire_item(items_file):
+def move_item(items_list, where_to_move_item):
     has_item_been_listed = False
-    items_file.seek(0)
-    for i, item in enumerate(items_file):
+    for i, item in enumerate(items_list):
         (name, description, price, location) = item.split(',')
-        if location == 'in\n':
+        if location != where_to_move_item:
             formatted_items_details = '{:<46} = $ {}'.format(
                 str(i) + ' - ' + name + ' ' + description, price)
             print(formatted_items_details)
             has_item_been_listed = True
 
-    if has_item_been_listed == False:
+    if not has_item_been_listed:
         print(ALL_ITEMS_ON_HIRE_MESSAGE)
     else:
         index_choice_is_a_number = False
-        while index_choice_is_a_number == False:
+        while not index_choice_is_a_number:
             try:
                 index_choice = input(ENTER_NUMBER_TO_HIRE_MESSAGE)
                 index_choice = int(index_choice)
@@ -184,14 +179,20 @@ def hire_item(items_file):
             except ValueError:
                 print(INVALID_INPUT_ERROR_MESSAGE)
 
-        items_file.seek(0)
-        (indexed_name, indexed_description, indexed_price, indexed_location) = items_file.readlines()[index_choice].split(',')
+        (indexed_name, indexed_description, indexed_price, indexed_location) = items_list[index_choice].split(',')
 
-        if indexed_location == 'in\n':
-            print('{} hired  for ${}'.format(indexed_name, indexed_price))
-            # set the item selected to "out" in items_file
+        if indexed_location != where_to_move_item:
+            if where_to_move_item == 'out\n':
+                print('{} hired  for ${}'.format(indexed_name, indexed_price))
+                # set the item selected to "out" in items_file
+            else:
+                print('{} returned'.format(indexed_name))
+                # set the item selected to "in" in items_file
         else:
-            print(ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE)
+            if where_to_move_item == 'out\n':
+                print(ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE)
+            else:
+                print(ITEM_ALREAD_RETURNED_MESSAGE)
 
 
 main()
