@@ -153,6 +153,14 @@ def main():
 
 
 def move_item_in_list(items_list, where_to_move_item):
+    """
+    Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
+
+    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
+    :param where_to_move_item: Whether the item will be in or out. eg. 'in\n' or 'out\n'
+    :return: Updated list with item moved
+    """
+
     has_item_been_listed = False
     has_item_been_listed = output_items(items_list, where_to_move_item, False)
 
@@ -193,11 +201,20 @@ def move_item_in_list(items_list, where_to_move_item):
     return items_list
 
 
-def output_items(items_list, where_to_move_item, display_all_items):
+def output_items(items_list, item_in_or_out, display_all_items):
+    """
+    Displays the list of 'in' items or 'out' items. Will display all items if display_all_items is true
+
+    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
+    :param item_in_or_out: Items to display. eg. 'in\n' or 'out\n'. Will not be used if display_all_items is True and
+    can be set to None
+    :param display_all_items: Boolean to override item_in_or_out and display all the items
+    :return: Boolean to determine whether or not an item was displayed
+    """
     has_item_been_listed = False
     for i, item in enumerate(items_list):
         (name, description, price, location) = item.split(',')
-        if display_all_items or location != where_to_move_item:
+        if display_all_items or location != item_in_or_out:
             formatted_items_details = '{:<46} = $ {}'.format(
                 str(i) + ' - ' + name + ' ' + description, price)
             if display_all_items and location == 'out\n':
@@ -209,6 +226,12 @@ def output_items(items_list, where_to_move_item, display_all_items):
 
 
 def add_new_item(items_list):
+    """
+    Adds a new item to the list of items through user input
+
+    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
+    :return: Updated list with item added
+    """
     item_name = input(GET_ITEM_NAME_MESSAGE)
     while item_name == '':
         print(NAME_IS_BLANK_ERROR_MESSAGE)
