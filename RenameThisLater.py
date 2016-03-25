@@ -109,24 +109,28 @@ function return_item(items_file)
             print "That item has already been returned"
 """
 
+# TODO organize this mess
 PROGRAM_NAME = 'Items for Hire'
 AUTHOR = 'Caleb Macdonald Black'
 MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
 LIST_ALL_ITEMS_MESSAGE = 'All items on file (* indicates item is currently out):'
 ALL_ITEMS_ON_HIRE_MESSAGE = 'All items are currently on hire'
 ENTER_NUMBER_TO_HIRE_MESSAGE = 'Enter the number of the item to hire\n'
-INVALID_INPUT_ERROR_MESSAGE = 'Invalid input; enter a number'
+ALL_ITEMS_RETURNED_MESSAGE = 'No items are currently on hire'
+ENTER_NUMBER_TO_RETURN_MESSAGE = 'Enter the number of the item to return\n'
+INVALID_INPUT_ERROR_MESSAGE = 'Invalid input; enter a valid number'
 ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE = 'That item is not available for hire'
 INVALID_MENU_CHOICE_ERROR_MESSAGE = 'Invalid menu choice'
-ITEM_ALREAD_RETURNED_MESSAGE = 'That item has already been returned'
+ITEM_ALREADY_RETURNED_MESSAGE = 'That item is not on hire'
 INVALID_INDEX_ERROR_MESSAGE = 'Invalid item number'
 GET_ITEM_NAME_MESSAGE = 'Item name: '
-NAME_IS_BLANK_ERROR_MESSAGE = 'Invalid name'
+INPUT_IS_BLANK_ERROR_MESSAGE = 'Input cannot be blank'
 GET_ITEM_DESCRIPTION_MESSAGE = 'Description: '
-DESCRIPTION_IS_BLANK_ERROR_MESSAGE = 'Invalid description'
 GET_ITEM_PRICE_MESSAGE = 'Price per day: $'
+PRICE_TOO_SMALL_ERROR_MESSAGE = 'Price must be >= $0'
 
 
+# TODO change items.csv file to original one
 def main():
     items_file = open('items.csv', 'r')
     items_list = items_file.readlines()
@@ -139,9 +143,9 @@ def main():
         if menu_choice == 'L':
             output_items(items_list, None, True)
         elif menu_choice == 'H':
-            items_list = move_item_in_list(items_list, 'out\n')
+            items_list = move_item_in_list(items_list, 'out')
         elif menu_choice == 'R':
-            items_list = move_item_in_list(items_list, 'in\n')
+            items_list = move_item_in_list(items_list, 'in')
         elif menu_choice == 'A':
             items_list = add_new_item(items_list)
         else:
@@ -149,7 +153,7 @@ def main():
 
         menu_choice = input(MENU).upper()
     items_file.close()
-    # print amount of items saved to items_file and a farewell message
+    # TODO print amount of items saved to items_file and a farewell message
 
 
 def move_item_in_list(items_list, where_to_move_item):
@@ -157,47 +161,53 @@ def move_item_in_list(items_list, where_to_move_item):
     Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
 
     :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :param where_to_move_item: Whether the item will be in or out. eg. 'in\n' or 'out\n'
+    :param where_to_move_item: Whether the item will be in or out. eg. 'in' or 'out'
     :return: Updated list with item moved
     """
 
     has_item_been_listed = False
     has_item_been_listed = output_items(items_list, where_to_move_item, False)
+    if where_to_move_item == 'in':
+        enter_number_message = ENTER_NUMBER_TO_RETURN_MESSAGE
+        no_items_to_display_message = ALL_ITEMS_RETURNED_MESSAGE
+        cannot_return_message = ITEM_ALREADY_RETURNED_MESSAGE
+    else:
+        enter_number_message = ENTER_NUMBER_TO_HIRE_MESSAGE
+        no_items_to_display_message = ALL_ITEMS_ON_HIRE_MESSAGE
+        cannot_return_message = ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE
 
     if not has_item_been_listed:
-        print(ALL_ITEMS_ON_HIRE_MESSAGE)
+        print(no_items_to_display_message)
     else:
         index_choice_is_valid = False
-        index_choice = input(ENTER_NUMBER_TO_HIRE_MESSAGE)
+        index_choice = input(enter_number_message)
         while not index_choice_is_valid:
             try:
                 index_choice = int(index_choice)
                 if index_choice >= len(items_list) or index_choice < 0:
                     print(INVALID_INDEX_ERROR_MESSAGE)
-                    index_choice = input(ENTER_NUMBER_TO_HIRE_MESSAGE)
                 else:
                     index_choice_is_valid = True
             except ValueError:
                 print(INVALID_INPUT_ERROR_MESSAGE)
-                index_choice = input(ENTER_NUMBER_TO_HIRE_MESSAGE)
 
         (indexed_name, indexed_description, indexed_price, indexed_location) = items_list[index_choice].split(',')
 
-        if indexed_location != where_to_move_item:
-            if where_to_move_item == 'out\n':
+        if where_to_move_item not in indexed_location:
+            if where_to_move_item == 'out':
+                items_list[index_choice] = ','.join(
+                    [indexed_name, indexed_description, indexed_price, where_to_move_item + '\n'])
                 print('{} hired for ${}'.format(indexed_name, indexed_price))
-                items_list[index_choice] = items_list[index_choice].replace('in\n', where_to_move_item)
                 # set the item selected to "out" in items_file
             else:
                 print('{} returned'.format(indexed_name))
-                items_list[index_choice] = items_list[index_choice].replace('out\n', where_to_move_item)
+                items_list[index_choice] = ','.join(
+                    [indexed_name, indexed_description, indexed_price, where_to_move_item + '\n'])
+
                 return items_list
                 # set the item selected to "in" in items_file
         else:
-            if where_to_move_item == 'out\n':
-                print(ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE)
-            else:
-                print(ITEM_ALREAD_RETURNED_MESSAGE)
+            print(cannot_return_message)
     return items_list
 
 
@@ -212,12 +222,15 @@ def output_items(items_list, item_in_or_out, display_all_items):
     :return: Boolean to determine whether or not an item was displayed
     """
     has_item_been_listed = False
+    if display_all_items:
+        print('All items on file (* indicates item is currently out):')
+    # TODO formatting is all kinds of messed up. needs brackets for desc, 2 decimal places for price and formatting
     for i, item in enumerate(items_list):
         (name, description, price, location) = item.split(',')
-        if display_all_items or location != item_in_or_out:
+        if display_all_items or item_in_or_out not in location:
             formatted_items_details = '{:<46} = $ {}'.format(
                 str(i) + ' - ' + name + ' ' + description, price)
-            if display_all_items and location == 'out\n':
+            if display_all_items and 'out' in location:
                 print(formatted_items_details, '*')
             else:
                 print(formatted_items_details)
@@ -234,20 +247,26 @@ def add_new_item(items_list):
     """
     item_name = input(GET_ITEM_NAME_MESSAGE)
     while item_name == '':
-        print(NAME_IS_BLANK_ERROR_MESSAGE)
+        print(INPUT_IS_BLANK_ERROR_MESSAGE)
         item_name = input(GET_ITEM_NAME_MESSAGE)
 
     item_description = input(GET_ITEM_DESCRIPTION_MESSAGE)
     while item_description == '':
-        print(DESCRIPTION_IS_BLANK_ERROR_MESSAGE)
+        print(INPUT_IS_BLANK_ERROR_MESSAGE)
         item_description = input(GET_ITEM_DESCRIPTION_MESSAGE)
     price_is_invalid = True
     while price_is_invalid:
         try:
             item_price = input(GET_ITEM_PRICE_MESSAGE)
             item_price = float(item_price)
-            items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
-            price_is_invalid = False
+            if item_price < 0:
+                print(PRICE_TOO_SMALL_ERROR_MESSAGE)
+                print(INVALID_INPUT_ERROR_MESSAGE)
+            else:
+                # TODO fix the formatting here. needs 2 decimal places
+                print(item_name, '(' + item_description + '),', '$' + str(item_price), 'now available for hire')
+                items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
+                price_is_invalid = False
         except ValueError:
             print(INVALID_INPUT_ERROR_MESSAGE)
     return items_list
