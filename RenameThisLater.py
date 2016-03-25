@@ -137,18 +137,7 @@ def main():
     while menu_choice != 'Q':
 
         if menu_choice == 'L':
-            print(LIST_ALL_ITEMS_MESSAGE)
-
-            for i, item in enumerate(items_list):
-
-                item_details = item.split(',')
-                # ToDo This isn't how this is done. fix this. Also needs brackets around description
-                formatted_items_details = '{:<46} = $ {}'.format(
-                    str(i) + ' - ' + item_details[0] + ' ' + item_details[1], item_details[2])
-                if item_details[3] == 'out\n':
-                    print(formatted_items_details, '*')
-                else:
-                    print(formatted_items_details)
+            output_items(items_list, None, True)
         elif menu_choice == 'H':
             items_list = move_item_in_list(items_list, 'out\n')
         elif menu_choice == 'R':
@@ -165,13 +154,7 @@ def main():
 
 def move_item_in_list(items_list, where_to_move_item):
     has_item_been_listed = False
-    for i, item in enumerate(items_list):
-        (name, description, price, location) = item.split(',')
-        if location != where_to_move_item:
-            formatted_items_details = '{:<46} = $ {}'.format(
-                str(i) + ' - ' + name + ' ' + description, price)
-            print(formatted_items_details)
-            has_item_been_listed = True
+    has_item_been_listed = output_items(items_list, where_to_move_item, False)
 
     if not has_item_been_listed:
         print(ALL_ITEMS_ON_HIRE_MESSAGE)
@@ -210,6 +193,21 @@ def move_item_in_list(items_list, where_to_move_item):
     return items_list
 
 
+def output_items(items_list, where_to_move_item, display_all_items):
+    has_item_been_listed = False
+    for i, item in enumerate(items_list):
+        (name, description, price, location) = item.split(',')
+        if display_all_items or location != where_to_move_item:
+            formatted_items_details = '{:<46} = $ {}'.format(
+                str(i) + ' - ' + name + ' ' + description, price)
+            if display_all_items and location == 'out\n':
+                print(formatted_items_details, '*')
+            else:
+                print(formatted_items_details)
+            has_item_been_listed = True
+    return has_item_been_listed
+
+
 def add_new_item(items_list):
     item_name = input(GET_ITEM_NAME_MESSAGE)
     while item_name == '':
@@ -225,11 +223,10 @@ def add_new_item(items_list):
         try:
             item_price = input(GET_ITEM_PRICE_MESSAGE)
             item_price = float(item_price)
+            items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
             price_is_invalid = False
         except ValueError:
             print(INVALID_INPUT_ERROR_MESSAGE)
-
-    items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
     return items_list
 
 
