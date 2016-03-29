@@ -128,11 +128,12 @@ INPUT_IS_BLANK_ERROR_MESSAGE = 'Input cannot be blank'
 GET_ITEM_DESCRIPTION_MESSAGE = 'Description: '
 GET_ITEM_PRICE_MESSAGE = 'Price per day: $'
 PRICE_TOO_SMALL_ERROR_MESSAGE = 'Price must be >= $0'
-
+FILE_NAME = 'items.csv'
+# TODO there is still strings in code. ask lindsay if this is okg
 
 # TODO change items.csv file to original one
 def main():
-    items_file = open('items.csv', 'r')
+    items_file = open(FILE_NAME, 'r')
     items_list = items_file.readlines()
 
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
