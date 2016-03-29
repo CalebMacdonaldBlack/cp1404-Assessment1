@@ -109,6 +109,8 @@ function return_item(items_file)
             print "That item has already been returned"
 """
 
+# TODO Try to Rethink this whole thing. How would I do it
+
 # TODO organize this mess
 PROGRAM_NAME = 'Items for Hire'
 AUTHOR = 'Caleb Macdonald Black'
