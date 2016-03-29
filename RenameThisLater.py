@@ -156,7 +156,7 @@ def main():
     # TODO print amount of items saved to items_file and a farewell message
 
 
-def move_item_in_list(items_list, where_to_move_item):
+def move_item_in_list(items_list: list, where_to_move_item: str) -> list:
     """
     Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
 
@@ -211,7 +211,7 @@ def move_item_in_list(items_list, where_to_move_item):
     return items_list
 
 
-def output_items(items_list, item_in_or_out = None, display_all_items = False):
+def output_items(items_list: list, item_in_or_out: str = None, display_all_items: bool = False) -> bool:
     """
     Displays the list of 'in' items or 'out' items. Will display all items if display_all_items is true
 
@@ -238,7 +238,8 @@ def output_items(items_list, item_in_or_out = None, display_all_items = False):
     return has_item_been_listed
 
 
-def add_new_item(items_list):
+def add_new_item(items_list: list) -> list:
+    # TODO lists are immutable. do i need to return this?
     """
     Adds a new item to the list of items through user input
 
