@@ -141,7 +141,7 @@ def main():
     while menu_choice != 'Q':
 
         if menu_choice == 'L':
-            output_items(items_list, None, True)
+            output_items(items_list, display_all_items=True)
         elif menu_choice == 'H':
             items_list = move_item_in_list(items_list, 'out')
         elif menu_choice == 'R':
@@ -166,7 +166,7 @@ def move_item_in_list(items_list, where_to_move_item):
     """
 
     has_item_been_listed = False
-    has_item_been_listed = output_items(items_list, where_to_move_item, False)
+    has_item_been_listed = output_items(items_list, item_in_or_out=where_to_move_item)
     if where_to_move_item == 'in':
         enter_number_message = ENTER_NUMBER_TO_RETURN_MESSAGE
         no_items_to_display_message = ALL_ITEMS_RETURNED_MESSAGE
@@ -211,7 +211,7 @@ def move_item_in_list(items_list, where_to_move_item):
     return items_list
 
 
-def output_items(items_list, item_in_or_out, display_all_items):
+def output_items(items_list, item_in_or_out = None, display_all_items = False):
     """
     Displays the list of 'in' items or 'out' items. Will display all items if display_all_items is true
 
