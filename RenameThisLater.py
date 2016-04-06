@@ -109,131 +109,151 @@ function return_item(items_file)
             print "That item has already been returned"
 """
 
-# TODO Try to Rethink this whole thing. How would I do it
-
-# TODO organize this mess
 PROGRAM_NAME = 'Items for Hire'
 AUTHOR = 'Caleb Macdonald Black'
-MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
-LIST_ALL_ITEMS_MESSAGE = 'All items on file (* indicates item is currently out):'
-ALL_ITEMS_ON_HIRE_MESSAGE = 'All items are currently on hire'
-ENTER_NUMBER_TO_HIRE_MESSAGE = 'Enter the number of the item to hire\n'
-ALL_ITEMS_RETURNED_MESSAGE = 'No items are currently on hire'
-ENTER_NUMBER_TO_RETURN_MESSAGE = 'Enter the number of the item to return\n'
-INVALID_INPUT_ERROR_MESSAGE = 'Invalid input; enter a valid number'
-ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE = 'That item is not available for hire'
-INVALID_MENU_CHOICE_ERROR_MESSAGE = 'Invalid menu choice'
-ITEM_ALREADY_RETURNED_MESSAGE = 'That item is not on hire'
-INVALID_INDEX_ERROR_MESSAGE = 'Invalid item number'
-GET_ITEM_NAME_MESSAGE = 'Item name: '
-INPUT_IS_BLANK_ERROR_MESSAGE = 'Input cannot be blank'
-GET_ITEM_DESCRIPTION_MESSAGE = 'Description: '
-GET_ITEM_PRICE_MESSAGE = 'Price per day: $'
-PRICE_TOO_SMALL_ERROR_MESSAGE = 'Price must be >= $0'
 FILE_NAME = 'items.csv'
-# TODO there is still strings in code. ask lindsay if this is okg
+
 
 # TODO change items.csv file to original one
+def save_item(items_list):
+    file = ''
+    for item in items_list:
+        line = ','.join(item)
+        line += '\n'
+        file += line
+    return file
+
+
 def main():
     items_file = open(FILE_NAME, 'r')
-    items_list = items_file.readlines()
-
+    items_list = read_file(items_file)
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
 
-    menu_choice = input(MENU).upper()
+    menu_choice = input(
+        'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
     while menu_choice != 'Q':
-
+        # TODO switch here
         if menu_choice == 'L':
-            output_items(items_list, display_all_items=True)
+            output_items(items_list, 'all')
         elif menu_choice == 'H':
-            items_list = move_item_in_list(items_list, 'out')
+            if output_items(items_list, 'out'):
+                items_list = hire_item(items_list)
+            else:
+                print('All items are currently on hire')
         elif menu_choice == 'R':
-            items_list = move_item_in_list(items_list, 'in')
+            if output_items(items_list, 'in'):
+                items_list = return_item(items_list)
+            else:
+                print('No items are currently on hire')
         elif menu_choice == 'A':
             items_list = add_new_item(items_list)
         else:
-            print(INVALID_MENU_CHOICE_ERROR_MESSAGE)
+            print('Invalid menu choice')
 
-        menu_choice = input(MENU).upper()
+        menu_choice = input(
+            'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
+    print(items_file)
+    items_file.write(save_item(items_list))
     items_file.close()
     # TODO print amount of items saved to items_file and a farewell message
 
 
-def move_item_in_list(items_list: list, where_to_move_item: str) -> list:
+def read_file(items_file):
+    """
+    Converts the csv file to a list of lists, removes the /n if its there and returns the list
+
+    :param items_file: The csv file read
+    :return: a list with each element in the list being another list containing the data for the item
+    """
+    items_list = []
+    for line in items_file.readlines():
+        item_as_list = line.split(',')
+
+        if item_as_list[3] == 'in\n':
+            item_as_list[3] = 'in'
+        elif item_as_list[3] == 'out\n':
+            item_as_list[3] = 'out'
+
+        items_list.append(item_as_list)
+    print(items_list)
+    return items_list
+
+
+def hire_item(items_list):
     """
     Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
 
     :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :param where_to_move_item: Whether the item will be in or out. eg. 'in' or 'out'
     :return: Updated list with item moved
     """
 
-    has_item_been_listed = False
-    has_item_been_listed = output_items(items_list, item_in_or_out=where_to_move_item)
-    if where_to_move_item == 'in':
-        enter_number_message = ENTER_NUMBER_TO_RETURN_MESSAGE
-        no_items_to_display_message = ALL_ITEMS_RETURNED_MESSAGE
-        cannot_return_message = ITEM_ALREADY_RETURNED_MESSAGE
-    else:
-        enter_number_message = ENTER_NUMBER_TO_HIRE_MESSAGE
-        no_items_to_display_message = ALL_ITEMS_ON_HIRE_MESSAGE
-        cannot_return_message = ITEM_NOT_AVAILABLE_FOR_HIRE_MESSAGE
-
-    if not has_item_been_listed:
-        print(no_items_to_display_message)
-    else:
-        index_choice_is_valid = False
-        index_choice = input(enter_number_message)
-        while not index_choice_is_valid:
-            try:
-                index_choice = int(index_choice)
-                if index_choice >= len(items_list) or index_choice < 0:
-                    print(INVALID_INDEX_ERROR_MESSAGE)
-                else:
-                    index_choice_is_valid = True
-            except ValueError:
-                print(INVALID_INPUT_ERROR_MESSAGE)
-
-        (indexed_name, indexed_description, indexed_price, indexed_location) = items_list[index_choice].split(',')
-
-        if where_to_move_item not in indexed_location:
-            if where_to_move_item == 'out':
-                items_list[index_choice] = ','.join(
-                    [indexed_name, indexed_description, indexed_price, where_to_move_item + '\n'])
-                print('{} hired for ${}'.format(indexed_name, indexed_price))
-                # set the item selected to "out" in items_file
+    index_choice_is_valid = False
+    index_choice = input('Enter the number of the item to hire\n')
+    while not index_choice_is_valid:
+        try:
+            index_choice = int(index_choice)
+            if index_choice >= len(items_list) or index_choice < 0:
+                print('Invalid item number')
             else:
-                print('{} returned'.format(indexed_name))
-                items_list[index_choice] = ','.join(
-                    [indexed_name, indexed_description, indexed_price, where_to_move_item + '\n'])
+                index_choice_is_valid = True
+        except ValueError:
+            print('Invalid input; enter a valid number')
 
-                return items_list
-                # set the item selected to "in" in items_file
-        else:
-            print(cannot_return_message)
+    if 'out' not in items_list[index_choice][3]:
+        items_list[index_choice][3] = 'out'
+        print('{} hired for ${}'.format(items_list[index_choice][0], items_list[index_choice][2]))
+    else:
+        print('That item is not available for hire')
     return items_list
 
 
-def output_items(items_list: list, item_in_or_out: str = None, display_all_items: bool = False) -> bool:
+def return_item(items_list):
+    """
+    Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
+
+    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
+    :return: Updated list with item moved
+    """
+
+    index_choice_is_valid = False
+    index_choice = input('Enter the number of the item to return\n')
+    while not index_choice_is_valid:
+        try:
+            index_choice = int(index_choice)
+            if index_choice >= len(items_list) or index_choice < 0:
+                print('Invalid item number')
+            else:
+                index_choice_is_valid = True
+        except ValueError:
+            print('Invalid input; enter a valid number')
+
+    if 'in' not in items_list[index_choice][3]:
+        print('{} returned'.format(items_list[index_choice][0]))
+        items_list[index_choice][3] = 'in'
+        return items_list
+        # set the item selected to "in" in items_file
+    else:
+        print('That item has already been returned')
+    return items_list
+
+
+def output_items(items_list, item_flag):
     """
     Displays the list of 'in' items or 'out' items. Will display all items if display_all_items is true
 
+    :param item_flag: A string containing 'in', 'out' or 'all' that determines what is outputted in this function
     :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :param item_in_or_out: Items to display. eg. 'in\n' or 'out\n'. Will not be used if display_all_items is True and
-    can be set to None
-    :param display_all_items: Boolean to override item_in_or_out and display all the items
     :return: Boolean to determine whether or not an item was displayed
     """
     has_item_been_listed = False
-    if display_all_items:
+    if item_flag == 'all':
         print('All items on file (* indicates item is currently out):')
     # TODO formatting is all kinds of messed up. needs brackets for desc, 2 decimal places for price and formatting
     for i, item in enumerate(items_list):
-        (name, description, price, location) = item.split(',')
-        if display_all_items or item_in_or_out not in location:
+        if item_flag == 'all' or item_flag not in item[3]:
             formatted_items_details = '{:<46} = $ {}'.format(
-                str(i) + ' - ' + name + ' ' + description, price)
-            if display_all_items and 'out' in location:
+                str(i) + ' - ' + item[0] + ' ' + item[1], item[2])
+            if item_flag == 'all' and 'out' in item[3]:
                 print(formatted_items_details, '*')
             else:
                 print(formatted_items_details)
@@ -249,30 +269,30 @@ def add_new_item(items_list: list) -> list:
     :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
     :return: Updated list with item added
     """
-    item_name = input(GET_ITEM_NAME_MESSAGE)
+    item_name = input('Item name: ')
     while item_name == '':
-        print(INPUT_IS_BLANK_ERROR_MESSAGE)
-        item_name = input(GET_ITEM_NAME_MESSAGE)
+        print('Input cannot be blank')
+        item_name = input('Item name: ')
 
-    item_description = input(GET_ITEM_DESCRIPTION_MESSAGE)
+    item_description = input('Description: ')
     while item_description == '':
-        print(INPUT_IS_BLANK_ERROR_MESSAGE)
-        item_description = input(GET_ITEM_DESCRIPTION_MESSAGE)
+        print('Input cannot be blank')
+        item_description = input('Description: ')
     price_is_invalid = True
     while price_is_invalid:
         try:
-            item_price = input(GET_ITEM_PRICE_MESSAGE)
+            item_price = input('Price per day: $')
             item_price = float(item_price)
             if item_price < 0:
-                print(PRICE_TOO_SMALL_ERROR_MESSAGE)
-                print(INVALID_INPUT_ERROR_MESSAGE)
+                print('Price must be >= $0')
+                print('Invalid input; enter a valid number')
             else:
                 # TODO fix the formatting here. needs 2 decimal places
                 print(item_name, '(' + item_description + '),', '$' + str(item_price), 'now available for hire')
                 items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
                 price_is_invalid = False
         except ValueError:
-            print(INVALID_INPUT_ERROR_MESSAGE)
+            print('Invalid input; enter a valid number')
     return items_list
 
 
