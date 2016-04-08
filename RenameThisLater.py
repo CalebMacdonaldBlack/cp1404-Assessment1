@@ -112,27 +112,30 @@ function return_item(items_file)
 PROGRAM_NAME = 'Items for Hire'
 AUTHOR = 'Caleb Macdonald Black'
 FILE_NAME = 'items.csv'
+MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
 
 
 # TODO change items.csv file to original one
 def save_item(items_list):
-    file = ''
+    write_file = open(FILE_NAME, 'w')
+    text_to_write = ''
     for item in items_list:
         line = ','.join(item)
         line += '\n'
-        file += line
-    return file
+        text_to_write += line
+    write_file.write(text_to_write)
+    write_file.close()
+    print('{} items saved to {}'.format(len(items_list), FILE_NAME))
 
 
 def main():
-    items_file = open(FILE_NAME, 'r')
-    items_list = read_file(items_file)
+
+    read_file = open(FILE_NAME, 'r')
+    items_list = create_list_from_file(read_file)
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
 
-    menu_choice = input(
-        'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
+    menu_choice = input(MENU).upper()
     while menu_choice != 'Q':
-        # TODO switch here
         if menu_choice == 'L':
             output_items(items_list, 'all')
         elif menu_choice == 'H':
@@ -152,19 +155,13 @@ def main():
 
         menu_choice = input(
             'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
-    print(items_file)
-    items_file.write(save_item(items_list))
-    items_file.close()
-    # TODO print amount of items saved to items_file and a farewell message
+    read_file.close()
+    save_item(items_list)
+    print('Have a nice day :)')
 
 
-def read_file(items_file):
-    """
-    Converts the csv file to a list of lists, removes the /n if its there and returns the list
+def create_list_from_file(items_file):
 
-    :param items_file: The csv file read
-    :return: a list with each element in the list being another list containing the data for the item
-    """
     items_list = []
     for line in items_file.readlines():
         item_as_list = line.split(',')
@@ -180,12 +177,6 @@ def read_file(items_file):
 
 
 def hire_item(items_list):
-    """
-    Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
-
-    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :return: Updated list with item moved
-    """
 
     index_choice_is_valid = False
     index_choice = input('Enter the number of the item to hire\n')
@@ -208,12 +199,6 @@ def hire_item(items_list):
 
 
 def return_item(items_list):
-    """
-    Determines from user input what item should be moved and sets it to 'in' or 'out' depending on the specified param
-
-    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :return: Updated list with item moved
-    """
 
     index_choice_is_valid = False
     index_choice = input('Enter the number of the item to return\n')
@@ -238,13 +223,7 @@ def return_item(items_list):
 
 
 def output_items(items_list, item_flag):
-    """
-    Displays the list of 'in' items or 'out' items. Will display all items if display_all_items is true
 
-    :param item_flag: A string containing 'in', 'out' or 'all' that determines what is outputted in this function
-    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :return: Boolean to determine whether or not an item was displayed
-    """
     has_item_been_listed = False
     if item_flag == 'all':
         print('All items on file (* indicates item is currently out):')
@@ -261,14 +240,8 @@ def output_items(items_list, item_flag):
     return has_item_been_listed
 
 
-def add_new_item(items_list: list) -> list:
-    # TODO lists are immutable. do i need to return this?
-    """
-    Adds a new item to the list of items through user input
+def add_new_item(items_list):
 
-    :param items_list: A list of Strings in csv format that contains the information for the items that can be hired
-    :return: Updated list with item added
-    """
     item_name = input('Item name: ')
     while item_name == '':
         print('Input cannot be blank')
