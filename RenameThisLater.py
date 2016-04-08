@@ -116,40 +116,36 @@ MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new ite
 
 
 # TODO change items.csv file to original one
-def save_item(items_list):
-    write_file = open(FILE_NAME, 'w')
-    text_to_write = ''
-    for item in items_list:
-        line = ','.join(item)
-        line += '\n'
-        text_to_write += line
-    write_file.write(text_to_write)
-    write_file.close()
-    print('{} items saved to {}'.format(len(items_list), FILE_NAME))
-
+# TODO Documentation
 
 def main():
-
+    print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
     read_file = open(FILE_NAME, 'r')
     items_list = create_list_from_file(read_file)
-    print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
 
     menu_choice = input(MENU).upper()
     while menu_choice != 'Q':
         if menu_choice == 'L':
-            output_items(items_list, 'all')
+            if len(items_list) > 0:
+                outputted_items(items_list, 'all')
+            else:
+                print('There are currently no items')
+
         elif menu_choice == 'H':
-            if output_items(items_list, 'out'):
+            if outputted_items(items_list, 'out'):
                 items_list = hire_item(items_list)
             else:
                 print('All items are currently on hire')
+
         elif menu_choice == 'R':
-            if output_items(items_list, 'in'):
+            if outputted_items(items_list, 'in'):
                 items_list = return_item(items_list)
             else:
                 print('No items are currently on hire')
+
         elif menu_choice == 'A':
             items_list = add_new_item(items_list)
+
         else:
             print('Invalid menu choice')
 
@@ -161,24 +157,47 @@ def main():
 
 
 def create_list_from_file(items_file):
-
     items_list = []
+
     for line in items_file.readlines():
         item_as_list = line.split(',')
-
-        if item_as_list[3] == 'in\n':
-            item_as_list[3] = 'in'
-        elif item_as_list[3] == 'out\n':
-            item_as_list[3] = 'out'
-
+        item_as_list[3] = item_as_list[3].replace('\n', '')
         items_list.append(item_as_list)
-    print(items_list)
+
+    # ensure grammar in 'loaded' message is correct
+    if len(items_list) == 1:
+        print('1 item loaded from {}'.format(FILE_NAME))
+    elif len(items_list) == 0:
+        print('No items loaded from {}'.format(FILE_NAME))
+    else:
+        print('{} items loaded from {}'.format(len(items_list), FILE_NAME))
+
     return items_list
 
 
-def hire_item(items_list):
+def save_item(items_list):
+    write_file = open(FILE_NAME, 'w')
+    text_to_write = ''
 
+    for item in items_list:
+        line = ','.join(item)
+        line += '\n'
+        text_to_write += line
+    write_file.write(text_to_write)
+    write_file.close()
+
+    # ensure grammar in 'saved' message is correct
+    if len(items_list) == 1:
+        print('1 item saved to {}'.format(FILE_NAME))
+    elif len(items_list) == 0:
+        print('No items saved to {}'.format(FILE_NAME))
+    else:
+        print('{} items saved to {}'.format(len(items_list), FILE_NAME))
+
+
+def hire_item(items_list):
     index_choice_is_valid = False
+
     index_choice = input('Enter the number of the item to hire\n')
     while not index_choice_is_valid:
         try:
@@ -192,25 +211,25 @@ def hire_item(items_list):
 
     if 'out' not in items_list[index_choice][3]:
         items_list[index_choice][3] = 'out'
-        print('{} hired for ${}'.format(items_list[index_choice][0], items_list[index_choice][2]))
+        print('{} hired for ${:.2f}'.format(items_list[index_choice][0], float(items_list[index_choice][2])))
     else:
         print('That item is not available for hire')
     return items_list
 
 
 def return_item(items_list):
-
     index_choice_is_valid = False
+
     index_choice = input('Enter the number of the item to return\n')
     while not index_choice_is_valid:
         try:
             index_choice = int(index_choice)
             if index_choice >= len(items_list) or index_choice < 0:
-                print('Invalid item number')
+                index_choice = input('Invalid item number\n')
             else:
                 index_choice_is_valid = True
         except ValueError:
-            print('Invalid input; enter a valid number')
+            index_choice = input('Invalid input; enter a number\n')
 
     if 'in' not in items_list[index_choice][3]:
         print('{} returned'.format(items_list[index_choice][0]))
@@ -218,30 +237,30 @@ def return_item(items_list):
         return items_list
         # set the item selected to "in" in items_file
     else:
-        print('That item has already been returned')
+        print('That item is not on hire')
     return items_list
 
 
-def output_items(items_list, item_flag):
-
+def outputted_items(items_list, item_flag):
     has_item_been_listed = False
+
     if item_flag == 'all':
         print('All items on file (* indicates item is currently out):')
-    # TODO formatting is all kinds of messed up. needs brackets for desc, 2 decimal places for price and formatting
+
     for i, item in enumerate(items_list):
         if item_flag == 'all' or item_flag not in item[3]:
-            formatted_items_details = '{:<46} = $ {}'.format(
-                str(i) + ' - ' + item[0] + ' ' + item[1], item[2])
+            formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
+                i, item[0] + ' (' + item[1] + ')', float(item[2]))
             if item_flag == 'all' and 'out' in item[3]:
                 print(formatted_items_details, '*')
             else:
                 print(formatted_items_details)
             has_item_been_listed = True
+
     return has_item_been_listed
 
 
 def add_new_item(items_list):
-
     item_name = input('Item name: ')
     while item_name == '':
         print('Input cannot be blank')
@@ -260,9 +279,8 @@ def add_new_item(items_list):
                 print('Price must be >= $0')
                 print('Invalid input; enter a valid number')
             else:
-                # TODO fix the formatting here. needs 2 decimal places
                 print(item_name, '(' + item_description + '),', '$' + str(item_price), 'now available for hire')
-                items_list.append(','.join([item_name, item_description, str(item_price), 'in\n']))
+                items_list.append([item_name, item_description, str(item_price), 'in'])
                 price_is_invalid = False
         except ValueError:
             print('Invalid input; enter a valid number')
