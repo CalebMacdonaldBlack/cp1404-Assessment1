@@ -10,8 +10,6 @@ FILE_NAME = 'items.csv'
 MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
 
 
-# TODO change list to tuples
-
 def main():
     """
     Main function: This calls the necessary functions to load the csv file, display menu and handle menu interaction
