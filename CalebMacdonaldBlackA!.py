@@ -10,7 +10,7 @@ FILE_NAME = 'items.csv'
 MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n'
 
 
-# TODO change items.csv file to original one
+# TODO change list to tuples
 
 def main():
     """
@@ -23,23 +23,15 @@ def main():
 
     menu_choice = input(MENU).upper()
     while menu_choice != 'Q':
+
         if menu_choice == 'L':
-            if len(items_list) > 0:
-                outputted_items(items_list, 'all')
-            else:
-                print('There are currently no items')
+            output_all_items(items_list)
 
         elif menu_choice == 'H':
-            if outputted_items(items_list, 'out'):
-                items_list = hire_item(items_list)
-            else:
-                print('All items are currently on hire')
+            items_list = hire_item(items_list)
 
         elif menu_choice == 'R':
-            if outputted_items(items_list, 'in'):
-                items_list = return_item(items_list)
-            else:
-                print('No items are currently on hire')
+            items_list = return_item(items_list)
 
         elif menu_choice == 'A':
             items_list = add_new_item(items_list)
@@ -79,7 +71,7 @@ def create_list_from_file():
     for line in items_file.readlines():
         item_as_list = line.split(',')
         item_as_list[3] = item_as_list[3].replace('\n', '')
-        items_list.append(item_as_list)
+        items_list.append(tuple(item_as_list))
 
     # ensure grammar in 'loaded' message is correct
     if len(items_list) == 1:
@@ -156,6 +148,19 @@ def hire_item(items_list):
     :return items_list: List of lists containing item information with the item state
     modified (will be unmodified if the item cannot be hired)
     """
+
+    has_item_been_listed = False
+    for i, item in enumerate(items_list):
+        if 'out' not in item[3]:
+            formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
+                i, item[0] + ' (' + item[1] + ')', float(item[2]))
+            print(formatted_items_details)
+            has_item_been_listed = True
+
+    if not has_item_been_listed:
+        print('All items are currently on hire')
+        return items_list
+
     index_choice_is_valid = False
 
     index_choice = input('Enter the number of the item to hire\n')
@@ -170,7 +175,8 @@ def hire_item(items_list):
             index_choice = input('Invalid input; enter a number\n')
 
     if 'out' not in items_list[index_choice][3]:
-        items_list[index_choice][3] = 'out'
+        items_list[index_choice] = (
+            items_list[index_choice][0], items_list[index_choice][1], items_list[index_choice][2], 'out')
         print('{} hired for ${:.2f}'.format(items_list[index_choice][0], float(items_list[index_choice][2])))
     else:
         print('That item is not available for hire')
@@ -185,6 +191,19 @@ def return_item(items_list):
     :return items_list: List of lists containing item information with the item state
     modified (will be unmodified if the item cannot be hired)
     """
+
+    has_item_been_listed = False
+    for i, item in enumerate(items_list):
+        if 'in' not in item[3]:
+            formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
+                i, item[0] + ' (' + item[1] + ')', float(item[2]))
+            print(formatted_items_details)
+            has_item_been_listed = True
+
+    if not has_item_been_listed:
+        print('No items are currently on hire')
+        return items_list
+
     index_choice_is_valid = False
 
     index_choice = input('Enter the number of the item to return\n')
@@ -200,7 +219,8 @@ def return_item(items_list):
 
     if 'in' not in items_list[index_choice][3]:
         print('{} returned'.format(items_list[index_choice][0]))
-        items_list[index_choice][3] = 'in'
+        items_list[index_choice] = (
+            items_list[index_choice][0], items_list[index_choice][1], items_list[index_choice][2], 'in')
         return items_list
         # set the item selected to "in" in items_file
     else:
@@ -208,30 +228,25 @@ def return_item(items_list):
     return items_list
 
 
-def outputted_items(items_list, item_flag):
+def output_all_items(items_list):
     """
-    Prints a formatted, ordered list of specific items to the console based on the item_flag. Returns
+    Prints a formatted, ordered list of all items to the console.
     :param items_list: List of lists containing item information
-    :param item_flag: 'in', 'out' or 'all'. Used to determine whether to display all items, hired items or returned
-    items.
-    :return has_item_been_listed: Boolean value that specifies if any items were listed or not
     """
     has_item_been_listed = False
-
-    if item_flag == 'all':
-        print('All items on file (* indicates item is currently out):')
+    print('All items on file (* indicates item is currently out):')
 
     for i, item in enumerate(items_list):
-        if item_flag == 'all' or item_flag not in item[3]:
-            formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
-                i, item[0] + ' (' + item[1] + ')', float(item[2]))
-            if item_flag == 'all' and 'out' in item[3]:
-                print(formatted_items_details, '*')
-            else:
-                print(formatted_items_details)
-            has_item_been_listed = True
+        formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
+            i, item[0] + ' (' + item[1] + ')', float(item[2]))
+        if 'out' in item[3]:
+            print(formatted_items_details, '*')
+        else:
+            print(formatted_items_details)
+        has_item_been_listed = True
 
-    return has_item_been_listed
+    if not has_item_been_listed:
+        print('There are currently no items')
 
 
 def add_new_item(items_list):
@@ -252,14 +267,13 @@ def add_new_item(items_list):
     price_is_invalid = True
     while price_is_invalid:
         try:
-            item_price = input('Price per day: $')
-            item_price = float(item_price)
+            item_price = float(input('Price per day: $'))
             if item_price < 0:
                 print('Price must be >= $0')
                 print('Invalid input; enter a valid number')
             else:
-                print(item_name, '(' + item_description + '),', '$' + str(item_price), 'now available for hire')
-                items_list.append([item_name, item_description, str(item_price), 'in'])
+                print('{} ({}), ${:.2f} now available for hire'.format(item_name, item_description, item_price))
+                items_list.append((item_name, item_description, str(item_price), 'in'))
                 price_is_invalid = False
         except ValueError:
             print('Invalid input; enter a valid number')
