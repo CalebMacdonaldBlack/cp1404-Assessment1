@@ -1,112 +1,7 @@
 """
-
-function main()
-    get items_file from items.csv file
-
-    print welcome message with author name
-
-    display menu
-    get menu choice from user
-    while choice isn't q
-
-        if choice is l
-            print "All items on file (* indicates item is currently out):"
-            for item in items_file
-                print item removing commas, add selection index, format neatly and adding astrix if item is out
-        else if choice is h
-            hire_item(items_file)
-        else if choice is r
-            item_list = return of display_and_get_item_list(choice, items_file)
-            if item_list contains values
-                return_item(items_file, choice)
-            else
-                print "No items are currently on hire"
-        else if choice is a
-            add_new_item()
-        else
-            display invalid choice message
-
-        display menu
-        get menu choice from user
-    save items_file
-    print amount of items saved to items_file and a fairwell message
-
-function add_new_item()
-    get item name from user
-    while name is blank
-        print blank name error
-        get item name from user
-
-    get item description from user
-    while description is blank
-        print blank description error
-        get item description from user
-
-    set price_is_invalid to true
-    while price_is_invalid
-        try
-            get item price from user
-            convert item price to number
-            set price_is_invalid to false
-        error value error
-            print price not a number error
-            set price_is_invalid to true
-
-    print item added as available to hire
-
-function hire_item(items_file)
-
-    set has_item_been_listed to false
-    for item in items_file
-        if item has not already been hired
-            print item removing commas, add selection index, format neatly
-            set has_item_been_listed to true
-
-    if has_item_been_listed is false
-        print "All items are currently on hire"
-    else
-        print "Enter the number of the item to hire"
-        set index_choice_is_a_number to false
-        while index_choice_is_valid is false
-            try
-                get index_choice from user
-                convert index_choice to number
-                index_choice_is_a_number = true
-            error value error
-                print invalid input error
-
-        if item in items_file at the index of index_choice is able to be hired
-            print the selected items name and cost
-            set the item selected to "out" in items_file
-        else
-            print "That item is not available for hire"
-
-function return_item(items_file)
-
-    set has_item_been_listed to false
-    for item in items_file
-        if item is currently out on hire
-            print item removing commas, add selection index, format neatly
-            set has_item_been_listed to true
-
-    if has_item_been_listed is false
-        print "No items are currently on hire"
-    else
-        print "Enter the number of the item to return"
-        set index_choice_is_a_number to false
-        while index_choice_is_valid is false
-            try
-                get index_choice from user
-                convert index_choice to number
-                index_choice_is_a_number = true
-            error value error
-                print invalid input error
-
-        if item in items_file at the index of index_choice is able to be hired
-            print the selected items name and say it was returned
-            set the item selected to "in" in items_file
-        else
-            print "That item has already been returned"
+Caleb Macdonald Black
+22/March/2015
+https://github.com/CalebMacdonaldBlack/cp1404-Assessment1
 """
 
 PROGRAM_NAME = 'Items for Hire'
@@ -123,9 +18,8 @@ def main():
     from the user and save the updated information to the csv file before exiting
     """
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
-    read_file = open(FILE_NAME, 'r')
-    items_list = create_list_from_file(read_file)
-    read_file.close()
+
+    items_list = create_list_from_file()
 
     menu_choice = input(MENU).upper()
     while menu_choice != 'Q':
@@ -159,12 +53,27 @@ def main():
     print('Have a nice day :)')
 
 
-def create_list_from_file(items_file):
+"""
+function load_items()
+    read_file = open and get items.csv file
+    items_list = new empty list
+
+    for each line in read_file
+        item_as_a_list = line converted to list
+        append item_as_a_list to items_list
+
+    print amount of items loaded and from what file
+    close read_file
+    return items_list
+"""
+
+
+def create_list_from_file():
     """
     Reads the file and returns a list of items as lists. This will also print to the console the amount of items loaded
-    :param items_file: The read only csv file containing the items
     :return items_list: All Item information converted to a list and appended to another list
     """
+    items_file = open(FILE_NAME, 'r')
     items_list = []
 
     for line in items_file.readlines():
@@ -180,6 +89,7 @@ def create_list_from_file(items_file):
     else:
         print('{} items loaded from {}'.format(len(items_list), FILE_NAME))
 
+    items_file.close()
     return items_list
 
 
@@ -208,6 +118,36 @@ def save_item(items_list):
         print('{} items saved to {}'.format(len(items_list), FILE_NAME))
 
 
+"""
+function hire_an_item(items_list)
+    was_item_listed = false
+
+    for each item in items_list
+        if item state is 'in'
+            print item with item index
+            was_item_listed = true
+
+    choice = get index from user
+
+    choice_valid = true
+    while choice_valid = false
+        try
+            convert choice to integer
+            if choice is between 0 and the number of items minus 1
+                choice_valid = true
+            else
+                print not in range error and get choice again
+        catch a valueError
+            print not a number error and get choice again
+    if item state is 'in'
+        print item hired
+    else
+        print not able to be hired error
+    return items_list
+
+"""
+
+
 def hire_item(items_list):
     """
     Through user input and validation, this function will attempt to change the item from an 'in' state to an 'out'
@@ -223,11 +163,11 @@ def hire_item(items_list):
         try:
             index_choice = int(index_choice)
             if index_choice >= len(items_list) or index_choice < 0:
-                print('Invalid item number')
+                index_choice = input('Invalid item number\n')
             else:
                 index_choice_is_valid = True
         except ValueError:
-            print('Invalid input; enter a valid number')
+            index_choice = input('Invalid input; enter a number\n')
 
     if 'out' not in items_list[index_choice][3]:
         items_list[index_choice][3] = 'out'
