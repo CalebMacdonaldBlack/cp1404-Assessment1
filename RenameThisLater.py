@@ -116,12 +116,16 @@ MENU = 'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new ite
 
 
 # TODO change items.csv file to original one
-# TODO Documentation
 
 def main():
+    """
+    Main function: This calls the necessary functions to load the csv file, display menu and handle menu interaction
+    from the user and save the updated information to the csv file before exiting
+    """
     print('{} - by {}'.format(PROGRAM_NAME, AUTHOR))
     read_file = open(FILE_NAME, 'r')
     items_list = create_list_from_file(read_file)
+    read_file.close()
 
     menu_choice = input(MENU).upper()
     while menu_choice != 'Q':
@@ -151,12 +155,16 @@ def main():
 
         menu_choice = input(
             'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
-    read_file.close()
     save_item(items_list)
     print('Have a nice day :)')
 
 
 def create_list_from_file(items_file):
+    """
+    Reads the file and returns a list of items as lists. This will also print to the console the amount of items loaded
+    :param items_file: The read only csv file containing the items
+    :return items_list: All Item information converted to a list and appended to another list
+    """
     items_list = []
 
     for line in items_file.readlines():
@@ -176,6 +184,11 @@ def create_list_from_file(items_file):
 
 
 def save_item(items_list):
+    """
+    Takes a list of items as lists and saves it to the the csv file. This function will also print the amount of items
+    saved to the console
+    :param items_list: All Item information converted to a list and appended to another list
+    """
     write_file = open(FILE_NAME, 'w')
     text_to_write = ''
 
@@ -196,6 +209,13 @@ def save_item(items_list):
 
 
 def hire_item(items_list):
+    """
+    Through user input and validation, this function will attempt to change the item from an 'in' state to an 'out'
+    state. Basically updating an item in the list to indicated that it has been hired out.
+    :param items_list: List of lists containing item information
+    :return items_list: List of lists containing item information with the item state
+    modified (will be unmodified if the item cannot be hired)
+    """
     index_choice_is_valid = False
 
     index_choice = input('Enter the number of the item to hire\n')
@@ -218,6 +238,13 @@ def hire_item(items_list):
 
 
 def return_item(items_list):
+    """
+    Through user input and validation, this function will attempt to change the item from an 'out' state to an 'in'
+    state. Basically updating an item in the list to indicated that it has been returned.
+    :param items_list: List of lists containing item information
+    :return items_list: List of lists containing item information with the item state
+    modified (will be unmodified if the item cannot be hired)
+    """
     index_choice_is_valid = False
 
     index_choice = input('Enter the number of the item to return\n')
@@ -242,6 +269,13 @@ def return_item(items_list):
 
 
 def outputted_items(items_list, item_flag):
+    """
+    Prints a formatted, ordered list of specific items to the console based on the item_flag. Returns
+    :param items_list: List of lists containing item information
+    :param item_flag: 'in', 'out' or 'all'. Used to determine whether to display all items, hired items or returned
+    items.
+    :return has_item_been_listed: Boolean value that specifies if any items were listed or not
+    """
     has_item_been_listed = False
 
     if item_flag == 'all':
@@ -261,6 +295,11 @@ def outputted_items(items_list, item_flag):
 
 
 def add_new_item(items_list):
+    """
+    Through user input and validation, this function will add a new item to items_list
+    :param items_list: List of lists containing item information
+    :return items_list: List of lists containing item information with the new item added
+    """
     item_name = input('Item name: ')
     while item_name == '':
         print('Input cannot be blank')
@@ -287,4 +326,5 @@ def add_new_item(items_list):
     return items_list
 
 
+# call main and start the program
 main()
