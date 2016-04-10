@@ -68,6 +68,7 @@ def create_list_from_file():
     for line in items_file.readlines():
         item_as_list = line.split(',')
         item_as_list[3] = item_as_list[3].replace('\n', '')
+        item_as_list[2] = float(item_as_list[2])
         items_list.append(tuple(item_as_list))
 
     # ensure grammar in 'loaded' message is correct
@@ -150,7 +151,7 @@ def hire_item(items_list):
     for i, item in enumerate(items_list):
         if 'out' not in item[3]:
             formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
-                i, item[0] + ' (' + item[1] + ')', float(item[2]))
+                i, item[0] + ' (' + item[1] + ')', item[2])
             print(formatted_items_details)
             has_item_been_listed = True
 
@@ -193,7 +194,7 @@ def return_item(items_list):
     for i, item in enumerate(items_list):
         if 'in' not in item[3]:
             formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
-                i, item[0] + ' (' + item[1] + ')', float(item[2]))
+                i, item[0] + ' (' + item[1] + ')', item[2])
             print(formatted_items_details)
             has_item_been_listed = True
 
@@ -235,7 +236,7 @@ def output_all_items(items_list):
 
     for i, item in enumerate(items_list):
         formatted_items_details = '{} - {:42} = $ {:>6.2f}'.format(
-            i, item[0] + ' (' + item[1] + ')', float(item[2]))
+            i, item[0] + ' (' + item[1] + ')', item[2])
         if 'out' in item[3]:
             print(formatted_items_details, '*')
         else:
@@ -270,7 +271,7 @@ def add_new_item(items_list):
                 print('Invalid input; enter a valid number')
             else:
                 print('{} ({}), ${:.2f} now available for hire'.format(item_name, item_description, item_price))
-                items_list.append((item_name, item_description, str(item_price), 'in'))
+                items_list.append((item_name, item_description, item_price, 'in'))
                 price_is_invalid = False
         except ValueError:
             print('Invalid input; enter a valid number')
