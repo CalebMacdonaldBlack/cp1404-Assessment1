@@ -19,7 +19,7 @@ def main():
 
     items_list = create_list_from_file()
 
-    menu_choice = input(MENU).upper()
+    menu_choice = input(MENU + '>>> ').upper()
     while menu_choice != 'Q':
 
         if menu_choice == 'L':
@@ -37,8 +37,7 @@ def main():
         else:
             print('Invalid menu choice')
 
-        menu_choice = input(
-            'Menu:\n(L)ist all items\n(H)ire an item\n(R)eturn an item\n(A)dd new item to stock\n(Q)uit\n').upper()
+        menu_choice = input(MENU + '>>> ').upper()
     save_item(items_list)
     print('Have a nice day :)')
 
@@ -161,16 +160,16 @@ def hire_item(items_list):
 
     index_choice_is_valid = False
 
-    index_choice = input('Enter the number of the item to hire\n')
+    index_choice = input('Enter the number of an item to hire\n>>> ')
     while not index_choice_is_valid:
         try:
             index_choice = int(index_choice)
             if index_choice >= len(items_list) or index_choice < 0:
-                index_choice = input('Invalid item number\n')
+                index_choice = input('Invalid item number\n>>> ')
             else:
                 index_choice_is_valid = True
         except ValueError:
-            index_choice = input('Invalid input; enter a number\n')
+            index_choice = input('Invalid input; enter a number\n>>> ')
 
     if 'out' not in items_list[index_choice][3]:
         items_list[index_choice] = (
@@ -204,16 +203,16 @@ def return_item(items_list):
 
     index_choice_is_valid = False
 
-    index_choice = input('Enter the number of the item to return\n')
+    index_choice = input('Enter the number of an item to return\n>>> ')
     while not index_choice_is_valid:
         try:
             index_choice = int(index_choice)
             if index_choice >= len(items_list) or index_choice < 0:
-                index_choice = input('Invalid item number\n')
+                index_choice = input('Invalid item number\n>>> ')
             else:
                 index_choice_is_valid = True
         except ValueError:
-            index_choice = input('Invalid input; enter a number\n')
+            index_choice = input('Invalid input; enter a number\n>>> ')
 
     if 'in' not in items_list[index_choice][3]:
         print('{} returned'.format(items_list[index_choice][0]))
