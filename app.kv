@@ -1,0 +1,37 @@
+BoxLayout:
+    orientation: 'vertical'
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.2
+            Button:
+                text: 'List Items'
+                on_press: app.button_pressed('list_items')
+            Button:
+                text: 'Hire Items'
+                on_press: app.button_pressed('hire_items')
+            Button:
+                text: 'Return Items'
+                on_press: app.button_pressed('return_items')
+            Button:
+                text: 'Confirm'
+                on_press: app.button_pressed('confirm')
+            Button:
+                text: 'Add New Items'
+                on_press: app.button_pressed('add_new_items')
+        BoxLayout:
+            orientation: 'vertical'
+            Button:
+                text: 'Test'
+                size_hint: 1, None
+                size: 0, 40
+            Button:
+                text: 'Test'
+                size_hint: 1, None
+                size: 0, 40
+    Label:
+        size_hint: 1, None
+        size: 0, 50
+        id: my_label
+        text: app.message
