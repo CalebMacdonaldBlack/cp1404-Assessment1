@@ -1,6 +1,7 @@
 BoxLayout:
     orientation: 'vertical'
     BoxLayout:
+        id: boxLayout_buttons
         orientation: 'horizontal'
         BoxLayout:
             orientation: 'vertical'
@@ -21,15 +22,8 @@ BoxLayout:
                 text: 'Add New Items'
                 on_press: app.button_pressed('add_new_items')
         BoxLayout:
+            id: boxLayout_item_buttons
             orientation: 'vertical'
-            Button:
-                text: 'Test'
-                size_hint: 1, None
-                size: 0, 40
-            Button:
-                text: 'Test'
-                size_hint: 1, None
-                size: 0, 40
     Label:
         size_hint: 1, None
         size: 0, 50

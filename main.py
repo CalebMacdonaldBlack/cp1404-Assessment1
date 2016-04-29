@@ -3,6 +3,7 @@ from kivy.app import Builder
 from kivy.app import StringProperty
 from itemList import ItemList
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
 import equipmenthireconsole
 
 
@@ -10,12 +11,16 @@ class HelloKv(App):
     message = StringProperty()
 
     def build(self):
-        items = ItemList(equipmenthireconsole.create_list_from_file())
         self.title = "Hello world!"
         self.root = Builder.load_file('app.kv')
-        btn = Button(text='hello world')
-        btn.bind(state=self.button_pressed)
-        self.root.add_widget(btn)
+
+        item_list = ItemList(equipmenthireconsole.create_list_from_file())
+        for item in item_list.items:
+            btn = Button(text=item.name)
+            btn.bind(state=self.button_pressed)
+            btn.size_hint = (1, None)
+            btn.size = (0, 40)
+            self.root.ids.boxLayout_item_buttons.add_widget(btn)
         return self.root
 
     @staticmethod
