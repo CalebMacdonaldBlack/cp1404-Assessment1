@@ -8,24 +8,29 @@ BoxLayout:
             size_hint_x: 0.2
             Button:
                 text: 'List Items'
-                on_press: app.button_pressed(self, 'list_items')
+                id: list_items
+                on_release: app.list_items_released(self)
             Button:
                 text: 'Hire Items'
-                on_press: app.button_pressed(self, 'hire_items')
+                id: hire_items
+                on_release: app.hire_items_released(self)
             Button:
                 text: 'Return Items'
-                on_press: app.button_pressed(self, 'return_items')
+                id: return_items
+                on_release: app.return_items_released(self)
             Button:
                 text: 'Confirm'
-                on_press: app.button_pressed(self, 'confirm')
+                id: confirm
+                on_release: app.confirm_released(self)
             Button:
-                text: 'Add New Items'
-                on_press: app.button_pressed(self, 'add_new_items')
+                text: 'Add New Item'
+                id: add_new_item
+                on_release: app.add_new_released(self)
         BoxLayout:
             id: boxLayout_item_buttons
             orientation: 'vertical'
     Label:
         size_hint: 1, None
         size: 0, 50
-        id: my_label
+        id: status_label
         text: app.message
