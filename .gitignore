@@ -10,3 +10,11 @@
 .idea/cp1404-Assessment1.iml
 
 .idea/cp1404-Assessment1.iml
+
+*.pyc
+
+*.xml
+
+*.xml
+
+.idea/misc.xml

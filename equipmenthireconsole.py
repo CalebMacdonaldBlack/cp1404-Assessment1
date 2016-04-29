@@ -279,4 +279,5 @@ def add_new_item(items_list):
 
 
 # call main and start the program
-main()
+if __name__ == '__main__':
+    main()
