@@ -22,4 +22,4 @@ class ItemList:
         for item in self.items:
             if item.name == name:
                 return item
-        return None
+        raise ValueError('Cannot find item with the name', name)
