@@ -23,3 +23,8 @@ class ItemList:
             if item.name == name:
                 return item
         raise ValueError('Cannot find item with the name', name)
+
+    def create_and_add_item(self, name, description, price, location='in'):
+        item = Item(name, description, price, location)
+        self.items.append(item)
+        return item
