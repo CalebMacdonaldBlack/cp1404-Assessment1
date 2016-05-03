@@ -16,18 +16,15 @@ ITEM_IN_COLOR = [1, 2, 1, 1]  # Green
 ITEM_SELECTED_COLOR = [2, 2, 2, 1]  # Light Grey
 
 
-# Change HelloKv to self
-
-
-class HelloKv(App):
+class EquipmentHireGui(App):
     status_text = StringProperty()
 
     def __init__(self):
-        super(HelloKv, self).__init__()
+        super(EquipmentHireGui, self).__init__()
         self.item_list = None  # this wont go into build
         self.program_state = State.LIST_ITEMS
-        self.item_list = ItemList(equipmenthireconsole.create_list_from_file())
-        self.item_names_currently_selected = {}
+        self.item_list = ItemList()
+        self.items_selected_id_and_button_dictionary = {}
         self.status_text = ''
 
     def build(self):
@@ -40,23 +37,29 @@ class HelloKv(App):
         return self.root
 
     def item_button_pressed(self, button):
+        item = self.item_list.find_item_by_id(button.id)
+        # this can all be reduced
+        if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
 
-        # toggle if return item state
-        if button.background_color == ITEM_OUT_COLOR and self.program_state == State.RETURN_ITEMS:
-            button.background_color = ITEM_SELECTED_COLOR
-            self.item_names_currently_selected[button.text] = button
-        elif button.background_color == ITEM_SELECTED_COLOR and self.program_state == State.RETURN_ITEMS:
-            button.background_color = ITEM_OUT_COLOR
-            del self.item_names_currently_selected[button.text]
+            if item.location == 'out' and self.program_state == State.RETURN_ITEMS:
+                if button.id in self.items_selected_id_and_button_dictionary:
+                    button.background_color = ITEM_OUT_COLOR
+                    del self.items_selected_id_and_button_dictionary[button.id]
+                else:
+                    button.background_color = ITEM_SELECTED_COLOR
+                    self.items_selected_id_and_button_dictionary[button.id] = button
+            elif item.location == 'in' and self.program_state == State.HIRE_ITEMS:
+                if button.id in self.items_selected_id_and_button_dictionary:
+                    button.background_color = ITEM_IN_COLOR
+                    del self.items_selected_id_and_button_dictionary[button.id]
+                else:
+                    button.background_color = ITEM_SELECTED_COLOR
+                    self.items_selected_id_and_button_dictionary[button.id] = button
 
-        # toggle if hire item state
-        elif button.background_color == ITEM_IN_COLOR and self.program_state == State.HIRE_ITEMS:
-            button.background_color = ITEM_SELECTED_COLOR
-            self.item_names_currently_selected[button.text] = button
-        elif button.background_color == ITEM_SELECTED_COLOR and self.program_state == State.HIRE_ITEMS:
-            button.background_color = ITEM_IN_COLOR
-            del self.item_names_currently_selected[button.text]
-        self.display_items_selected_in_status()
+            self.display_items_selected_in_status()
+
+        elif self.program_state == State.LIST_ITEMS:
+            self.status_text = '{} ({}), ${:.2f} is {}'.format(item.name, item.description, item.price, item.location)
 
     def list_items_pressed(self, button):
         self.release_buttons()
@@ -64,7 +67,7 @@ class HelloKv(App):
         button.state = 'down'
         # empty selected items list
         self.deselect_item_buttons()
-        self.item_names_currently_selected = {}
+        self.items_selected_id_and_button_dictionary = {}
         self.program_state = State.LIST_ITEMS
 
     def hire_items_pressed(self, button):
@@ -72,7 +75,7 @@ class HelloKv(App):
         button.state = 'down'
         # empty selected items list
         self.deselect_item_buttons()
-        self.item_names_currently_selected = {}
+        self.items_selected_id_and_button_dictionary = {}
         self.program_state = State.HIRE_ITEMS
         self.display_items_selected_in_status()
 
@@ -82,27 +85,27 @@ class HelloKv(App):
         button.state = 'down'
         # empty selected items list
         self.deselect_item_buttons()
-        self.item_names_currently_selected = {}
+        self.items_selected_id_and_button_dictionary = {}
         self.program_state = State.RETURN_ITEMS
 
     def confirm_pressed(self):
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
-            for name, button in self.item_names_currently_selected.items():
-                self.item_list.flip_item_location_by_name(name)
-                item = self.item_list.find_item_by_name(name)
+            for id, button in self.items_selected_id_and_button_dictionary.items():
+                self.item_list.flip_item_location_by_id(id)
+                item = self.item_list.find_item_by_id(button.id)
                 if item.location == 'in':
                     button.background_color = ITEM_IN_COLOR
                 else:
                     button.background_color = ITEM_OUT_COLOR
-                self.item_names_currently_selected = {}
+                self.items_selected_id_and_button_dictionary = {}
                 self.display_items_selected_in_status()
 
-    def add_new_pressed(self, button):
+    def add_new_pressed(self):
         self.release_buttons()
         self.status_text = ADD_NEW_ITEM_STATUS_MESSAGE
         # empty selected items list
         self.deselect_item_buttons()
-        self.item_names_currently_selected = {}
+        self.items_selected_id_and_button_dictionary = {}
         self.root.ids.popup.open()
 
     def release_buttons(self):
@@ -112,8 +115,8 @@ class HelloKv(App):
         self.root.ids.add_new_item.state = 'normal'
 
     def deselect_item_buttons(self):
-        for text, button in self.item_names_currently_selected.items():
-            item = self.find_item_by_name(text)
+        for id, button in self.items_selected_id_and_button_dictionary.items():
+            item = self.item_list.find_item_by_id(id)
             if item.location == 'out':
                 button.background_color = ITEM_OUT_COLOR
             else:
@@ -121,16 +124,18 @@ class HelloKv(App):
 
     def display_items_selected_in_status(self):
         price = 0
+        selected_item_names = []
+        for id, button in self.items_selected_id_and_button_dictionary.items():
+            item = self.item_list.find_item_by_id(id)
+            price += item.price
+            selected_item_names.append(self.item_list.find_item_by_id(id).name)
+
         if self.program_state == State.HIRE_ITEMS:
-            for name, button in self.item_names_currently_selected.items():
-                item = self.item_list.find_item_by_name(name)
-                price += item.price
-            self.status_text = 'Hiring: {} for ${:.2f}'.format(
-                ', '.join(self.item_names_currently_selected) or 'No items', price)
+            self.status_text = 'Hiring: {} for ${:.2f}'.format(', '.join(selected_item_names) or 'No items', price)
         elif self.program_state == State.RETURN_ITEMS:
-            if self.item_names_currently_selected:
+            if selected_item_names:
                 self.status_text = 'Returning: {}'.format(
-                    ', '.join(self.item_names_currently_selected) or 'Select available items to return')
+                    ', '.join(selected_item_names) or 'Select available items to return')
             else:
                 self.status_text = 'Select available items to return'
 
@@ -139,6 +144,8 @@ class HelloKv(App):
             item = self.item_list.create_and_add_item(name, description, float(price))
             self.add_item_to_display(item)
             self.exit_popup_and_clear_fields()
+            # press list_items to engage button and set status text
+            self.list_items_pressed(self.root.ids.list_items)
 
     def are_text_fields_valid(self, name, description, price):
         if name == '' or description == '' or price == '':
@@ -165,10 +172,14 @@ class HelloKv(App):
         btn.bind(on_release=self.item_button_pressed)
         btn.size_hint = (1, None)
         btn.size = (0, 40)
+        btn.id = 'item_{}'.format(item.index)
         if item.location == 'out':
             btn.background_color = ITEM_OUT_COLOR
         else:
             btn.background_color = ITEM_IN_COLOR
         self.root.ids.boxLayout_item_buttons.add_widget(btn)
 
-HelloKv().run()
+    def on_stop(self):
+        self.item_list.save_items()
+
+EquipmentHireGui().run()
