@@ -109,10 +109,8 @@ class EquipmentHireGui(App):
         self.root.ids.popup.open()
 
     def release_buttons(self):
-        self.root.ids.list_items.state = 'normal'
-        self.root.ids.hire_items.state = 'normal'
-        self.root.ids.return_items.state = 'normal'
-        self.root.ids.add_new_item.state = 'normal'
+        for button in self.root.ids.menu_buttons.children:
+            button.state = 'normal'
 
     def deselect_item_buttons(self):
         for id, button in self.items_selected_id_and_button_dictionary.items():
