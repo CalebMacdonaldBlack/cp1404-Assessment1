@@ -46,14 +46,16 @@ class EquipmentHireGui(App):
                     button.background_color = ITEM_OUT_COLOR
                     del self.items_selected_id_and_button_dictionary[button.id]
                 else:
-                    button.background_color = ITEM_SELECTED_COLOR
+                    #button.background_color = ITEM_SELECTED_COLOR
+                    button.state = 'down'
                     self.items_selected_id_and_button_dictionary[button.id] = button
             elif item.location == 'in' and self.program_state == State.HIRE_ITEMS:
                 if button.id in self.items_selected_id_and_button_dictionary:
                     button.background_color = ITEM_IN_COLOR
                     del self.items_selected_id_and_button_dictionary[button.id]
                 else:
-                    button.background_color = ITEM_SELECTED_COLOR
+                    #button.background_color = ITEM_SELECTED_COLOR
+                    button.state = 'down'
                     self.items_selected_id_and_button_dictionary[button.id] = button
 
             self.display_items_selected_in_status()
@@ -90,15 +92,26 @@ class EquipmentHireGui(App):
 
     def confirm_pressed(self):
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
-            for id, button in self.items_selected_id_and_button_dictionary.items():
-                self.item_list.flip_item_location_by_id(id)
+            for button in self.root.ids.boxLayout_item_buttons.children:
+
+                self.item_list.flip_item_location_by_id(button.id)
                 item = self.item_list.find_item_by_id(button.id)
                 if item.location == 'in':
                     button.background_color = ITEM_IN_COLOR
                 else:
                     button.background_color = ITEM_OUT_COLOR
-                self.items_selected_id_and_button_dictionary = {}
+
                 self.display_items_selected_in_status()
+
+            # for id, button in self.items_selected_id_and_button_dictionary.items():
+            #     self.item_list.flip_item_location_by_id(id)
+            #     item = self.item_list.find_item_by_id(button.id)
+            #     if item.location == 'in':
+            #         button.background_color = ITEM_IN_COLOR
+            #     else:
+            #         button.background_color = ITEM_OUT_COLOR
+            #     self.items_selected_id_and_button_dictionary = {}
+            #     self.display_items_selected_in_status()
 
     def add_new_pressed(self):
         self.release_buttons()
@@ -113,12 +126,15 @@ class EquipmentHireGui(App):
             button.state = 'normal'
 
     def deselect_item_buttons(self):
-        for id, button in self.items_selected_id_and_button_dictionary.items():
-            item = self.item_list.find_item_by_id(id)
-            if item.location == 'out':
-                button.background_color = ITEM_OUT_COLOR
-            else:
-                button.background_color = ITEM_IN_COLOR
+        for button in self.root.ids.boxLayout_item_buttons.children:
+            button.state = 'normal'
+
+        # for id, button in self.items_selected_id_and_button_dictionary.items():
+        #     item = self.item_list.find_item_by_id(id)
+        #     if item.location == 'out':
+        #         button.background_color = ITEM_OUT_COLOR
+        #     else:
+        #         button.background_color = ITEM_IN_COLOR
 
     def display_items_selected_in_status(self):
         price = 0
