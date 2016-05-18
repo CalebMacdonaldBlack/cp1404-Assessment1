@@ -93,25 +93,17 @@ class EquipmentHireGui(App):
     def confirm_pressed(self):
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
             for button in self.root.ids.boxLayout_item_buttons.children:
+                if button.state == 'down':
+                    button.state = 'normal'
+                    self.item_list.flip_item_location_by_id(button.id)
+                    item = self.item_list.find_item_by_id(button.id)
 
-                self.item_list.flip_item_location_by_id(button.id)
-                item = self.item_list.find_item_by_id(button.id)
-                if item.location == 'in':
-                    button.background_color = ITEM_IN_COLOR
-                else:
-                    button.background_color = ITEM_OUT_COLOR
+                    if item.location == 'in':
+                        button.background_color = ITEM_IN_COLOR
+                    else:
+                        button.background_color = ITEM_OUT_COLOR
 
-                self.display_items_selected_in_status()
-
-            # for id, button in self.items_selected_id_and_button_dictionary.items():
-            #     self.item_list.flip_item_location_by_id(id)
-            #     item = self.item_list.find_item_by_id(button.id)
-            #     if item.location == 'in':
-            #         button.background_color = ITEM_IN_COLOR
-            #     else:
-            #         button.background_color = ITEM_OUT_COLOR
-            #     self.items_selected_id_and_button_dictionary = {}
-            #     self.display_items_selected_in_status()
+                    self.display_items_selected_in_status()
 
     def add_new_pressed(self):
         self.release_buttons()
