@@ -74,15 +74,15 @@ BoxLayout:
             Button:
                 text: 'Return Items'
                 id: return_items
-                on_release: app.return_items_pressed(self)
+                on_release: app.return_items_button_pressed(self)
             Button:
                 text: 'Confirm'
                 id: confirm
-                on_release: app.confirm_pressed()
+                on_release: app.confirm_button_pressed()
             Button:
                 text: 'Add New Item'
                 id: add_new_item
-                on_release: app.add_new_pressed()
+                on_release: app.add_new_button_pressed()
         BoxLayout:
             id: boxLayout_item_buttons
             orientation: 'vertical'
