@@ -42,7 +42,7 @@ class EquipmentHireGui(App):
         self.item_list = None  # this wont go into build
         self.program_state = State.LIST_ITEMS
         self.item_list = ItemList()
-        self.items_selected_id_and_button_dictionary = {}
+        self.selected_items_ids_list = []
         self.status_text = ''
         self.title = TITLE
         self.root = Builder.load_file(KV_FILE_NAME)
@@ -74,21 +74,21 @@ class EquipmentHireGui(App):
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
 
             if item.location == 'out' and self.program_state == State.RETURN_ITEMS:
-                if button.id in self.items_selected_id_and_button_dictionary:
+                if button.id in self.selected_items_ids_list:
                     button.background_color = ITEM_OUT_COLOR
-                    del self.items_selected_id_and_button_dictionary[button.id]
+                    self.selected_items_ids_list.remove(button.id)
                 else:
                     # button.background_color = ITEM_SELECTED_COLOR
                     button.state = 'down'
-                    self.items_selected_id_and_button_dictionary[button.id] = button
+                    self.selected_items_ids_list.append(button.id)
             elif item.location == 'in' and self.program_state == State.HIRE_ITEMS:
-                if button.id in self.items_selected_id_and_button_dictionary:
+                if button.id in self.selected_items_ids_list:
                     button.background_color = ITEM_IN_COLOR
-                    del self.items_selected_id_and_button_dictionary[button.id]
+                    self.selected_items_ids_list.remove(button.id)
                 else:
                     # button.background_color = ITEM_SELECTED_COLOR
                     button.state = 'down'
-                    self.items_selected_id_and_button_dictionary[button.id] = button
+                    self.selected_items_ids_list.append(button.id)
 
             self.display_items_selected_in_status()
 
@@ -105,7 +105,7 @@ class EquipmentHireGui(App):
         button.state = 'down'
         # empty selected items list
         self.release_item_buttons()
-        self.items_selected_id_and_button_dictionary = {}
+        self.selected_items_ids_list = []
         self.program_state = State.LIST_ITEMS
 
     def hire_items_pressed(self, button):
@@ -117,7 +117,7 @@ class EquipmentHireGui(App):
         button.state = 'down'
         # empty selected items list
         self.release_item_buttons()
-        self.items_selected_id_and_button_dictionary = {}
+        self.selected_items_ids_list = []
         self.program_state = State.HIRE_ITEMS
         self.display_items_selected_in_status()
 
@@ -131,7 +131,7 @@ class EquipmentHireGui(App):
         button.state = 'down'
         # empty selected items list
         self.release_item_buttons()
-        self.items_selected_id_and_button_dictionary = {}
+        self.selected_items_ids_list = []
         self.program_state = State.RETURN_ITEMS
 
     def confirm_button_pressed(self):
@@ -162,7 +162,7 @@ class EquipmentHireGui(App):
         self.status_text = ADD_NEW_ITEM_STATUS_MESSAGE
         # empty selected items list
         self.release_item_buttons()
-        self.items_selected_id_and_button_dictionary = {}
+        self.selected_items_ids_list = []
         self.root.ids.popup.open()
 
     def release_menu_buttons(self):
@@ -186,7 +186,7 @@ class EquipmentHireGui(App):
         """
         price = 0
         selected_item_names = []
-        for id, button in self.items_selected_id_and_button_dictionary.items():
+        for id in self.selected_items_ids_list:
             item = self.item_list.find_item_by_id(id)
             price += item.price
             selected_item_names.append(self.item_list.find_item_by_id(id).name)
