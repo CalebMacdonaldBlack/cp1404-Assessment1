@@ -33,7 +33,6 @@ class EquipmentHireGui(App):
     status_text = StringProperty()
 
     def __init__(self):
-        print('1')
         """
         Constructor
         Initializes variables
@@ -41,14 +40,13 @@ class EquipmentHireGui(App):
         super(EquipmentHireGui, self).__init__()
         self.item_list = None  # this wont go into build
         self.program_state = State.LIST_ITEMS
-        self.item_list = ItemList()
+        self.item_list = ItemList(equipmenthireconsole.create_list_from_file())
         self.selected_items_ids_list = []
         self.status_text = ''
         self.title = TITLE
         self.root = Builder.load_file(KV_FILE_NAME)
 
     def build(self):
-        print('2')
         """
         Builds the Kivy gui and adds all the widgets
         :return: the parent Kivy widget (root)
@@ -271,9 +269,10 @@ class EquipmentHireGui(App):
 
     def on_stop(self):
         """
-        Invokes the save function on the item_list to save all the items and their current properties to the csv file
+        Invokes the save function from the equipmenthireconsole module and passes it a list of lists build using a
+        method in item_list
         """
-        self.item_list.save_items()
+        equipmenthireconsole.save_item(self.item_list.get_items_as_list_of_lists())
 
 
 EquipmentHireGui().run()

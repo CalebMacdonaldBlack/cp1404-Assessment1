@@ -1,28 +1,27 @@
 from item import Item
-import equipmenthireconsole
 
 
 class ItemList:
-    def __init__(self):
+    def __init__(self, list_of_item_tuples):
         """
-        Constructor: Gets all the items from the csv file using the equipmenthireconsole module and appends them the
-        item lists's instance of items
+        Constructor: contructs a list of items (the Item class) from a list of tuples. Saves this to an instance
+        variable
         """
         self.items = []
-        for i, item_tuple in enumerate(equipmenthireconsole.create_list_from_file()):
+        for i, item_tuple in enumerate(list_of_item_tuples):
             item = Item(item_tuple[0], item_tuple[1], item_tuple[2], item_tuple[3], i)
             self.items.append(item)
 
-    def save_items(self):
+    def get_items_as_list_of_lists(self):
         """
-        Using the equipmenthireconsole module this saves the items by converting the item instance to a list and
-        passes it to the modules save_item function
+        constructs a list of lists from items and returns it
+        :return: a list of lists(items where data is element in the list).
         """
         item_list = []
         for item in self.items:
             item_as_list = [item.name, item.description, str(item.price), item.location]
             item_list.append(item_as_list)
-        equipmenthireconsole.save_item(item_list)
+        return item_list
 
     def flip_item_location_by_id(self, id):
         """
