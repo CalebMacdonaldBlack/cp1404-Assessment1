@@ -36,6 +36,11 @@ class EquipmentHireGui(App):
         self.status_text = ''
 
     def build(self):
+        """
+        Builds the Kivy gui and adds all the widgets
+        :return: the parent Kivy widget (root)
+        """
+        # TODO How to remove this warning? It won't go in the contructor
         self.title = TITLE
         self.root = Builder.load_file(KV_FILE_NAME)
 
@@ -53,6 +58,7 @@ class EquipmentHireGui(App):
         :param button:
         :return:
         """
+        # TODO try to toggle on background color
         item = self.item_list.find_item_by_id(button.id)
         # this can all be reduced
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
