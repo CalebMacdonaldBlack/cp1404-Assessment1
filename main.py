@@ -1,3 +1,12 @@
+"""
+Caleb Macdonald Black
+25/May/2016
+This program what designed to track the hiring out of items. I tells whether items are in or out, how much the cost
+is per day of the item and a description of the item. New items can be created as well. All information about the item
+is saved to an CSV file
+https://github.com/CalebMacdonaldBlack/cp1404-Assessment1/tree/gui
+"""
+
 from kivy.app import App
 from kivy.app import Builder
 from kivy.app import StringProperty
@@ -15,8 +24,8 @@ ITEM_OUT_COLOR = [2, 1, 1, 1]  # Red
 ITEM_IN_COLOR = [1, 2, 1, 1]  # Green
 ITEM_SELECTED_COLOR = [2, 2, 2, 1]  # Light Grey
 
-# TODO is this name correct?
-TITLE = 'Equipment Hire Gui'
+
+TITLE = 'Equipment Hire'
 KV_FILE_NAME = 'app.kv'
 
 
@@ -24,6 +33,7 @@ class EquipmentHireGui(App):
     status_text = StringProperty()
 
     def __init__(self):
+        print('1')
         """
         Constructor
         Initializes variables
@@ -34,15 +44,15 @@ class EquipmentHireGui(App):
         self.item_list = ItemList()
         self.items_selected_id_and_button_dictionary = {}
         self.status_text = ''
+        self.title = TITLE
+        self.root = Builder.load_file(KV_FILE_NAME)
 
     def build(self):
+        print('2')
         """
         Builds the Kivy gui and adds all the widgets
         :return: the parent Kivy widget (root)
         """
-        # TODO How to remove this warning? It won't go in the contructor
-        self.title = TITLE
-        self.root = Builder.load_file(KV_FILE_NAME)
 
         # add all items to the display
         for item in self.item_list.items:
@@ -58,7 +68,7 @@ class EquipmentHireGui(App):
         :param button:
         :return:
         """
-        # TODO try to toggle on background color
+
         item = self.item_list.find_item_by_id(button.id)
         # this can all be reduced
         if self.program_state == State.HIRE_ITEMS or self.program_state == State.RETURN_ITEMS:
@@ -199,14 +209,15 @@ class EquipmentHireGui(App):
         :param description:
         :param price:
         """
-        if self.are_text_fields_valid(name, description, price):
+        # validate_text_fields() returns a boolean. True if valid and False if invalid
+        if self.validate_text_fields(name, description, price):
             item = self.item_list.create_and_add_item(name, description, float(price))
             self.add_item_to_display(item)
             self.exit_popup_and_clear_fields()
             # press list_items to engage button and set status text
             self.list_items_pressed(self.root.ids.list_items)
 
-    def are_text_fields_valid(self, name, description, price):
+    def validate_text_fields(self, name, description, price):
         """
         Returns whether or not the text fields are valid as a boolean. Updates the status text label with the current
         error message
@@ -215,8 +226,6 @@ class EquipmentHireGui(App):
         :param price: price of the item
         :return : True if all fields are valid and false if any of the fields aren't valid
         """
-        # TODO is it a bad idea for this function update the status text and return a boolean? should I separate this?
-        # TODO Should I separate this into multiple verification functions?
         if name == '' or description == '' or price == '':
             self.status_text = 'All fields must be completed'
             return False
